@@ -42,7 +42,12 @@ var ASSETS = {
     "se_pinpon": "sounds/pipon.mp3",
     // "se_boo": "sounds/boo.wav",
     "se_boo": "sounds/ponpon.mp3",
-    "se_voice": "sounds/voice.m4a",
+
+    "se_voice_title": "sounds/voice_title.m4a",
+    "se_voice_one": "sounds/voice_one.m4a",
+    "se_voice_two": "sounds/voice_two.m4a",
+    "se_voice_three": "sounds/voice_three.m4a",
+    "se_voice_start": "sounds/voice_start.m4a",
 
     "bgm": "sounds/bgm.mp3",
 };
@@ -121,6 +126,8 @@ var UI_DATA = {
             {
                 name: "ui",
                 type: "tm.display.CanvasElement",
+                visible: false,
+                alpha: 0,
                 children: [
                     {
                         name: "hiiman",

@@ -29,7 +29,7 @@ tm.main(function() {
     loading.onload = function() {
         // タイトルシーン生成
         var titleScene = MainScene();
-        var titleScene = TitleScene();
+        // var titleScene = TitleScene();
         app.replaceScene(titleScene);
     };
     app.replaceScene(loading);
@@ -69,7 +69,7 @@ tm.define("TitleScene", {
             .to({x:p.x, y:p.y}, 1000, "easeOutBounce")
             .wait(200)
             .call(function() {
-                tm.asset.Manager.get("se_voice").clone().play();
+                tm.asset.Manager.get("se_voice_title").clone().play();
             })
             .wait(3000)
             .call(function() {
@@ -128,6 +128,8 @@ var MainScene = tm.createClass({
         this.pieceGroup = tm.display.CanvasElement().addChildTo(this);
         for (var i=0; i<PIECE_NUM; ++i) {
             var p = Piece(i+1);
+
+            p.disable();
             
             // タッチ処理
             p.ontouchstart = function() {
@@ -148,7 +150,14 @@ var MainScene = tm.createClass({
         }
         
         this.pieceGroup.y = -700;
-        this.pieceGroup.tweener.wait(600).moveBy(0, 700, 2000, "easeOutBounce");
+        this.pieceGroup.tweener.wait(600).moveBy(0, 700, 2000, "easeOutBounce").call(function() {
+            var countdown = CountdownScene();
+            this.app.pushScene(countdown);
+
+            countdown.onexit = function() {
+                this.startGame();
+            }.bind(this);
+        }.bind(this));
         
         // シャッフル
         pieceList.shuffle();
@@ -169,10 +178,20 @@ var MainScene = tm.createClass({
 
     update: function() {
         var time = ((app.frame/app.fps)*1000)|0;
+        this.time =time;
         var time = (((new Date()) - this.startTime)/10)|0;
         var timeStr = time.toString().replace(/(\d)(?=(\d\d)+$)/g, "$1.");
         this.ui.timeLabel.text = timeStr;
-    }
+    },
+
+    startGame: function() {
+        this.ui.show().wakeUp();
+        this.ui.tweener.fadeIn(200);
+
+        this.pieceGroup.children.each(function(p) {
+            p.enable();
+        });
+    },
 });
 
 
@@ -187,7 +206,7 @@ var Piece = tm.createClass({
         this.superInit(PIECE_WIDTH-2, PIECE_HEIGHT-2);
         
         this.number = n;
-        this.enable = true;
+        this.enableFlag = true;
         
         // var c = this.canvas;
         // c.clearColor("hsl(60, 90%, 90%)");
@@ -226,20 +245,25 @@ var Piece = tm.createClass({
         c.textBaseline = "middle";
         c.fillText(this.number, 0, 0);
     },
+
+    enable: function() {
+        this._render("hsl(60, 100%, 90%)");
+        this.enableFlag = true;
+    },
     
     disable: function() {
         var c = this.canvas;
         c.clearColor("gray");
-        this.enable = false;
+        this.enableFlag = false;
     },
     
     onpointingover: function() {
-        if (!this.enable) return ;
+        if (!this.enableFlag) return ;
         this._render("hsl(60, 100%, 70%)");
     },
     
     onpointingout: function() {
-        if (!this.enable) return ;
+        if (!this.enableFlag) return ;
         this._render("hsl(60, 100%, 90%)");
     }
 });
@@ -249,7 +273,71 @@ var Piece = tm.createClass({
 
 
 
-
+tm.define("CountdownScene", {
+    superClass: "tm.app.Scene",
+ 
+    init: function() {
+        this.superInit();
+        var self = this;
+ 
+        var filter = tm.app.Shape(SCREEN_WIDTH, SCREEN_HEIGHT).addChildTo(this);
+        filter.origin.set(0, 0);
+        filter.canvas.clearColor("rgba(250, 250, 250, 0.8)");
+ 
+        var label = tm.app.Label(3).addChildTo(this);
+        label
+            .setPosition(SCREEN_CENTER_X+60, SCREEN_CENTER_Y)
+            .setFillStyle("#888")
+            .setFontFamily("KodomoRounded")
+            .setFontSize(512)
+            .setAlign("center")
+            .setBaseline("middle");
+        label.origin.x = 0.0;
+ 
+        label.tweener
+            .set({
+                scaleX: 0.5,
+                scaleY: 0.5,
+                text: 3
+            })
+            .call(function() {
+                tm.asset.Manager.get("se_voice_three").clone().play();
+            })
+            .scale(1)
+            .set({
+                scaleX: 0.5,
+                scaleY: 0.5,
+                text: 2
+            })
+            .call(function() {
+                tm.asset.Manager.get("se_voice_two").clone().play();
+            })
+            .scale(1)
+            .set({
+                scaleX: 0.5,
+                scaleY: 0.5,
+                text: 1
+            })
+            .call(function() {
+                tm.asset.Manager.get("se_voice_one").clone().play();
+            })
+            .scale(1)
+            .set({
+                x: SCREEN_CENTER_X,
+                scaleX: 1.0,
+                scaleY: 1.0,
+                fontSize: 120,
+                text: "スタート",
+            })
+            .call(function() {
+                tm.asset.Manager.get("se_voice_start").clone().play();
+            })
+            .scale(1)
+            .call(function() {
+                self.app.popScene();
+            });
+    },
+});
 
 
 
