@@ -29,7 +29,7 @@ tm.main(function() {
     loading.onload = function() {
         // タイトルシーン生成
         var titleScene = MainScene();
-        // var titleScene = TitleScene();
+        var titleScene = TitleScene();
         app.replaceScene(titleScene);
     };
     app.replaceScene(loading);
@@ -143,6 +143,8 @@ var MainScene = tm.createClass({
                 else {
                     tm.asset.Manager.get("se_boo").clone().play();
                 }
+                
+                self.touchTime = new Date();
             }
             
             pieceList.push(p);
@@ -172,25 +174,37 @@ var MainScene = tm.createClass({
             p.x += PIECE_WIDTH/2;
             p.y += PIECE_HEIGHT/2;
         }
-
-        this.startTime = new Date();
     },
 
-    update: function() {
+    refreshTime: function() {
         var time = ((app.frame/app.fps)*1000)|0;
-        this.time =time;
         var time = (((new Date()) - this.startTime)/10)|0;
+        this.time =time;
         var timeStr = time.toString().replace(/(\d)(?=(\d\d)+$)/g, "$1.");
         this.ui.timeLabel.text = timeStr;
+        
+        // hint
+        var time = (new Date()) - this.touchTime;
+        if (time > 10*1000) {
+            var piece = this.pieceGroup.children[this.currentIndex-1];
+            piece.buruburu();
+            
+            this.touchTime = new Date();
+        }
     },
 
     startGame: function() {
+        this.startTime = new Date();
+        this.touchTime = new Date();
+        
         this.ui.show().wakeUp();
         this.ui.tweener.fadeIn(200);
 
         this.pieceGroup.children.each(function(p) {
             p.enable();
         });
+        
+        this.update = this.refreshTime;
     },
 });
 
@@ -245,7 +259,24 @@ var Piece = tm.createClass({
         c.textBaseline = "middle";
         c.fillText(this.number, 0, 0);
     },
-
+    
+    buruburu: function() {
+        var prevX = this.x;
+        var prevY = this.y;
+        
+        this.tweener.clear();
+        for (var i=0; i<12; ++i) {
+            var x = prevX + Math.randf(-2, 2);
+            var y = prevY + Math.randf(-2, 2);
+            this.tweener.wait(100).set({x:x,y:y});
+        }
+        
+        this.tweener.call(function() {
+            this.setPosition(prevX, prevY);
+            this.tweener.clear();
+        }.bind(this));
+    },
+    
     enable: function() {
         this._render("hsl(60, 100%, 90%)");
         this.enableFlag = true;
