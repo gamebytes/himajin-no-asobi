@@ -48,13 +48,19 @@ var ASSETS = {
     "se_voice_two": "sounds/voice_two.m4a",
     "se_voice_three": "sounds/voice_three.m4a",
     "se_voice_start": "sounds/voice_start.m4a",
+    "se_voice_clear": "sounds/voice_clear.m4a",
+
+    "se_voice_msg00": "sounds/voice/msg00.m4a",
+    "se_voice_msg01": "sounds/voice/msg01.m4a",
+    "se_voice_msg02": "sounds/voice/msg02.m4a",
+    "se_voice_msg03": "sounds/voice/msg03.m4a",
 
     "bgm": "sounds/bgm.mp3",
 };
 
 
 var UI_DATA = {
-    title: {
+    root: {
         children: [
             {
                 name: "bg",
@@ -65,6 +71,10 @@ var UI_DATA = {
                 width: SCREEN_WIDTH,
                 height: SCREEN_HEIGHT,
             },
+        ]
+    },
+    title: {
+        children: [
             {
                 name: "logo",
                 type: "Sprite",
@@ -113,16 +123,6 @@ var UI_DATA = {
     },
     main: {
         children: [
-            {
-                name: "bg",
-                type: "Sprite",
-                image: "img_sky",
-                originX: 0,
-                originY: 0,
-                width: SCREEN_WIDTH,
-                height: SCREEN_HEIGHT,
-            },
-
             {
                 name: "ui",
                 type: "tm.display.CanvasElement",
@@ -197,7 +197,7 @@ var UI_DATA = {
                         x:150,
                         y:650,
                         width:SCREEN_WIDTH,
-                        text:"いまは 98",
+                        text:"いまは 1",
                         align:"center",
                         baseline: "middle",
                         fillStyle: "#222",
@@ -209,7 +209,135 @@ var UI_DATA = {
                     },
                 ],
             },
-
         ]
     },
+    clear: {
+        children: {
+            "bg": {
+                type: "tm.display.RectangleShape",
+                init: [SCREEN_WIDTH, SCREEN_HEIGHT, {
+                    fillStyle: "rgba(255, 255, 255, 0.5)",
+                    strokeStyle: "transparent",
+                    lineWidth: 4,
+                }],
+                x: SCREEN_CENTER_X,
+                y: SCREEN_CENTER_Y,
+            },
+            "clear": {
+                type: "Label",
+                name: "timeStrLabel",
+                x:SCREEN_CENTER_X,
+                y:SCREEN_CENTER_Y,
+                text:"クリアー",
+                fillStyle: "#222",
+                fontSize:128,
+                border: true,
+                shadowBlur: 2,
+                shadowColor: "white",
+                fontFamily: "KodomoRounded",
+            },
+        }
+    },
+    result: {
+        children: {
+            "bg": {
+                type: "tm.display.RoundRectangleShape",
+                init: [370, 400, {
+                    fillStyle: "white",
+                    strokeStyle: "black",
+                    lineWidth: 4,
+                }],
+                x: SCREEN_CENTER_X,
+                y: SCREEN_CENTER_Y,
+            },
+            timeLabel: {
+                type: "Label",
+                x:SCREEN_CENTER_X,
+                y:210,
+                width:SCREEN_WIDTH,
+                text:"タイム\n12.222",
+                fillStyle: "#222",
+                fontSize:42,
+                border: true,
+                shadowBlur: 2,
+                shadowColor: "white",
+                fontFamily: "KodomoRounded",
+            },
+            messageLabel: {
+                type: "Label",
+                x:SCREEN_CENTER_X,
+                y:320,
+                width:SCREEN_WIDTH,
+                text:"ねぇねぇ\nボーッとパソコンさわって\nすぎてく一日ってどんな\nかんじ？",
+                fillStyle: "#222",
+                fontSize:26,
+                fontFamily: "KodomoRounded",
+            },
+
+            tweetButton: {
+                type: "tm.ui.FlatButton",
+                init: [{
+                    width: 140,
+                    height: 60,
+                    bgColor: "hsl(180, 70%, 70%)",
+                    text: "ついーと",
+                    fontSize: 30,
+                    fontFamily: "KodomoRounded",
+                }],
+                x: SCREEN_CENTER_X-80,
+                y: 500,
+            },
+            backButton: {
+                type: "tm.ui.FlatButton",
+                init: [{
+                    width: 140,
+                    height: 60,
+                    bgColor: "hsl(240, 70%, 70%)",
+                    text: "もどる",
+                    fontSize: 30,
+                    fontFamily: "KodomoRounded",
+                }],
+                x: SCREEN_CENTER_X+80,
+                y: 500,
+            },
+        },
+    }
 };
+
+
+var MESSAGE_LIST = [
+    {
+        text: "ねぇねぇ\nお仕事もお勉強もせずに\nゲームしてるだけで\nいいんだね",
+        voice: "se_voice_msg00",
+    },
+    {
+        text: "ねぇねぇ\nなんでおにいちゃんは\nずっと部屋から\nでてこないのかな",
+        voice: "se_voice_msg01",
+    },
+    {
+        text: "ねぇねぇ\n知ってた？時間って\nむげんじゃないんだよ",
+        voice: "se_voice_msg02",
+    },
+    {
+        text: "ねぇねぇ\nボーッとパソコンさわって\nすぎてく一日ってどんな\nかんじ？",
+        voice: "se_voice_msg03",
+    },
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

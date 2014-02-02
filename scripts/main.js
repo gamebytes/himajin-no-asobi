@@ -27,10 +27,13 @@ tm.main(function() {
         height: SCREEN_HEIGHT,
     });
     loading.onload = function() {
+        app.replaceScene(RootScene());
         // タイトルシーン生成
-        var titleScene = MainScene();
+        // var titleScene = MainScene();
         var titleScene = TitleScene();
-        app.replaceScene(titleScene);
+        // var titleScene = ResultScene({});
+        // var titleScene = ClearScene();
+        app.pushScene(titleScene);
     };
     app.replaceScene(loading);
     
@@ -38,6 +41,16 @@ tm.main(function() {
     app.run();
 });
 
+
+tm.define("RootScene", {
+    superClass: tm.app.Scene,
+
+    init: function() {
+        this.superInit();
+
+        this.fromJSON(UI_DATA.root);
+    },
+});
 
 
 /*
@@ -78,6 +91,8 @@ tm.define("TitleScene", {
     },
 
     disable: function() {
+        tm.asset.Manager.get("bgm").stop();
+
         this.startLabel.visible = false;
     },
 
@@ -135,10 +150,15 @@ var MainScene = tm.createClass({
             p.ontouchstart = function() {
                 if (this.number == self.currentIndex) {
                     self.currentIndex += 1;
+                    self.ui.numberLabel.text = "いまは " + self.currentIndex;
                     
                     this.disable();
                     
                     tm.asset.Manager.get("se_pinpon").clone().play();
+
+                    if (self.currentIndex > 100) {
+                        self.gotoClear();
+                    }
                 }
                 else {
                     tm.asset.Manager.get("se_boo").clone().play();
@@ -179,7 +199,7 @@ var MainScene = tm.createClass({
     refreshTime: function() {
         var time = ((app.frame/app.fps)*1000)|0;
         var time = (((new Date()) - this.startTime)/10)|0;
-        this.time =time;
+        this.time = time*10;
         var timeStr = time.toString().replace(/(\d)(?=(\d\d)+$)/g, "$1.");
         this.ui.timeLabel.text = timeStr;
         
@@ -206,6 +226,21 @@ var MainScene = tm.createClass({
         
         this.update = this.refreshTime;
     },
+
+    gotoClear: function() {
+        var scene = ClearScene();
+        this.app.pushScene(scene);
+
+        var time = this.time;
+
+        var self = this;
+        scene.onexit = function() {
+            var scene = ResultScene({
+                time: time
+            });
+            this.app.replaceScene(scene);
+        };
+    }
 });
 
 
@@ -369,6 +404,66 @@ tm.define("CountdownScene", {
             });
     },
 });
+
+
+
+tm.define("ClearScene", {
+    superClass: "tm.app.Scene",
+
+    init: function() {
+        this.superInit();
+
+        this.fromJSON(UI_DATA.clear);
+
+        tm.asset.Manager.get("se_voice_clear").clone().play();
+
+        this.tweener.clear().wait(3000).call(function() {
+            this.app.popScene();
+        }.bind(this));
+    },
+});
+
+
+
+tm.define("ResultScene", {
+    superClass: "tm.app.Scene",
+
+    init: function(param) {
+        this.superInit();
+
+        var self = this;
+        var message = MESSAGE_LIST.pickup();
+
+        this.fromJSON(UI_DATA.result);
+
+        var text = "タイム `{time}` 「{message}」".format({
+            time: param.time,
+            message: message.text.replace(/\n/g, ' ')
+        });
+//        var text = "SCORE: {score}, {msg}".format(param);
+        var twitterURL = this.tweetURL = tm.social.Twitter.createURL({
+            type    : "tweet",
+            text    : text,
+            hashtags: "暇人の遊び,tmlib",
+            url     : "http://phi-jp.github.io/himajin-no-asobi/"
+        });
+
+        this.tweetButton.onclick = function() {
+            window.open(twitterURL);
+        };
+
+        this.backButton.onpointingend = function() {
+            self.app.replaceScene(TitleScene());
+        };
+
+        this.timeLabel.text = "タイム\n" + (param.time/1000) + "びょう";
+        this.messageLabel.text = message.text;
+
+        tm.asset.Manager.get(message.voice).clone().play();
+    },
+});
+
+
 
 
 
