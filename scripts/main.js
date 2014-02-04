@@ -436,8 +436,8 @@ tm.define("ResultScene", {
 
         this.fromJSON(UI_DATA.result);
 
-        var text = "タイム `{time}` 「{message}」".format({
-            time: param.time,
+        var text = "タイム `{time}`秒 「{message}」".format({
+            time: (param.time/1000)|0,
             message: message.text.replace(/\n/g, ' ')
         });
 //        var text = "SCORE: {score}, {msg}".format(param);
