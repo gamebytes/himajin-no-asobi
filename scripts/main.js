@@ -18,7 +18,7 @@ tm.main(function() {
     app.fps = FRAME_RATE;
     app.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
     app.fitWindow();
-    app.enableStats();
+    // app.enableStats();
     app.fps = 30;
     
     var loading = tm.ui.LoadingScene({
